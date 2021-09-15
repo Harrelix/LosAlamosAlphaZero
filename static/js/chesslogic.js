@@ -101,7 +101,7 @@ class Chessgame {
                               .replace(/11/g, '2')
                         var g = Chess(f)
 
-                        if (g.in_check()) {
+                        if (!g.in_check()) {
                             res.push(coor_to_square(1, 5))
                         }
 
