@@ -22,23 +22,23 @@
 }
 
 .white-queen-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/wQ.png");
+    background-image: url("../img/chesspieces/wQ.png");
 }
 .black-queen-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/bQ.png");
+    background-image: url("../img/chesspieces/bQ.png");
 }
 .white-rook-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/wR.png");
+    background-image: url("../img/chesspieces/wR.png");
     
 }
 .black-rook-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/bR.png");
+    background-image: url("../img/chesspieces/bR.png");
 }
 .white-knight-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/wN.png");
+    background-image: url("../img/chesspieces/wN.png");
 }
 .black-knight-promotion {
-    background-image: url("LosAlamosAlphaZero/static/img/chesspieces/bN.png");
+    background-image: url("../img/chesspieces/bN.png");
 }
 
 .highlight-white {
