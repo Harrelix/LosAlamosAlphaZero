@@ -3,18 +3,44 @@
     <head>
         <meta charset="utf-8" />
         <title>Los Alamos Alpha Zero</title>
-        <base href="../" />
-        <link rel="stylesheet" href="LosAlamosAlphaZero/static/css/chessboard-1.0.0.css">
+        <link rel="stylesheet" href="./static/css/chessboard style.css">
+        <link rel="stylesheet" href="./static/css/style.css">
     </head>
 
-    <body>
-        <div id="myBoard" style="width: 800px"></div>
-        <script src="LosAlamosAlphaZero/static/js/jquery-3.4.1.min.js"></script>
-        <script src="LosAlamosAlphaZero/static/js/chessboard-1.0.0.js"></script>
-        <script src="LosAlamosAlphaZero/static/js/chess.js"></script>
-        <script src="LosAlamosAlphaZero/static/js/chesslogic.js"></script>
+        <body>
+        <div class="sidebar">
+            <h2>Los Alamos Alpha Zero</h2>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            <div class="pgn-viewer" id="pgn-viewer">
+                <h2>PICK COLOR</h2>
+                <button class="color-button" onclick="init('white')">
+                    <img src="static/img/chesspieces/wK.png" width="64" height="64">
+                    <span><b>WHITE</b></span>
+                </button>
+                <button class="color-button" onclick="init('black')">
+                    <img src="static/img/chesspieces/bK.png" width="64" height="64">
+                    <span><b>BLACK</b></span>
+                </button>
+                <button class="color-button" onclick="init('random')">
+                    <img src="static/img/random.png" width="64" height="64">
+                    <span><b>RANDOM</b></span>
+                </button>
+            </div>
+            <br>
+        </div>
+            
+        <div style="margin-left: 25%; height: 100%; width: 75%; position: fixed">
+            <div id="myBoard" style="width: 50%" class="center"></div>
+        </div>>
         
-        
+<!--        <script src="./static/js/jquery-3.4.1.min.js"></script>-->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="./static/js/chessboard-1.0.0.js"></script>
+<!--        <script src="./static/js/chess.js"></script>-->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chess.js@0.12.0/chess.min.js"></script>
+            
+        <script src="./static/js/chesslogic.js"></script>      
     </body>
     
 </html>

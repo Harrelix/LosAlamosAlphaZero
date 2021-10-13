@@ -1,0 +1,138 @@
+body {
+    background-color: #696969;
+    margin: 0;
+    padding: 0;
+}
+
+
+.sidebar{
+    height: 100%;
+    max-height: 100%;
+    width: 25%;
+    background-color: #353535;
+    position: fixed;
+    z-index: 1;
+    overflow: hidden;
+    padding: 20px;
+    box-shadow: 1px 0px 10px black;
+    color: white;
+    border-right-color: gray;
+    border-style: none solid none none;
+    display: flex;
+    flex-flow: column;
+    padding-bottom: 50px;
+    font-size: 25px;
+    font-family: "Verdana";
+}
+
+.pgn-viewer {
+    flex: 0 1 auto;
+    margin: 10px;
+    padding: 0px;
+    height: 100%;
+    max-height: 100%;
+    border-style: solid;
+    border-color: gray;
+    box-shadow: 0px 0px 10px black;
+    overflow-y: auto;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+
+.color-button {
+    background-color: white;
+    color: black;
+    border-style: solid;
+    border-color: black;
+    border-radius: 4px;
+    width: 75%;
+    height: 100px;
+    text-align: left;
+    font-size: 48px;
+    padding: 5px;
+    transition-duration: 0.4s;
+    margin-bottom: 16px;
+}
+.color-button:hover {
+  background-color: lightblue;
+}
+
+.color-button img {  
+    margin-right: 5px;
+    vertical-align: top;
+}
+.color-button span {
+    display:inline-block;
+    margin-top: 10px;
+    vertical-align: top;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: gray;
+}
+
+::-webkit-scrollbar-thumb {
+  background: dimgray;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.pgn-move-label {
+    background-color: #222;
+    border-width: 0px;
+    border-right-width: 4px;
+    border-style: solid;
+    border-color: lightgray;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    height: 64px;
+    max-height: 64px;
+    width: 13%;
+    max-width: 13%;
+    padding: 0px;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: inline-flex;
+    margin-top: -1px;
+    margin-bottom: -1px;
+    z-index: 99;
+}
+
+.pgn-move {
+    background-color: #333;
+    transition-duration: 0.4s;
+    text-align: left;
+    height: 64px;
+    max-height: 64px;
+    width: 43%;
+    max-width: 43%;
+    border-style: solid;
+    border-color: #444;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: -1px;
+    margin-bottom: -1px;
+    margin-left: -1px;
+    padding-left: 20px;
+    z-index: 100;
+}
+.pgn-move:hover {
+    background-color: #667;
+}
+
+.pgn-highlight {
+    background-color: #667;
+}
+

@@ -1,4 +1,5 @@
 const COLUMNS = 'abcdef'.split('')
+const NUMBERS = '0123456789'.split('')
 
 
 function coor_to_square(x, y) {
@@ -34,6 +35,51 @@ function replace_at(board, x, y, replacement) {
     return board
 }
 
+function update_pgn(pgn) {
+    var pv = document.getElementById("pgn-viewer")
+    var x = pgn.split(" ")
+    if (NUMBERS.includes(x[x.length - 2][0])) {
+        var c = x[x.length - 2]
+        c = c.slice(0, c.length - 1)
+        var e = document.createElement("div")
+        e.innerHTML = c
+        e.classList.add("pgn-move-label")
+        pv.appendChild(e)
+    }
+    
+    var e = document.createElement("button")
+    e.id = "pgn-button-" + x.length
+    e.innerHTML = x[x.length - 1]
+    e.classList.add("pgn-move")
+    e.classList.add("pgn-highlight")
+    e.addEventListener("click", set_board_and_game(game.state, e.id))
+    var es = document.getElementsByClassName("pgn-move")
+    for (i = 0; i < es.length; i++) {
+        es[i].classList.remove("pgn-highlight")
+        es[i].currentMove = false
+    }
+    e.currentMove = true
+    pv.appendChild(e)
+    pv.scrollTop = pv.scrollHeight
+    console.log(game.fen())
+}
+
+function set_board_and_game(s, id) {
+    function x() {
+        game.set_state(s)
+        board.position(game.fen())
+        $board.find('.' + squareClass).removeClass('highlight-white')
+        $board.find('.' + squareClass).removeClass('highlight-black')
+        var es = document.getElementsByClassName("pgn-move")
+        for (i = 0; i < es.length; i++) {
+            es[i].classList.remove("pgn-highlight")
+        }
+        document.getElementById(id).classList.add("pgn-highlight")
+        onCurrentMove = document.getElementById(id).currentMove
+    }
+    return x
+}
+
 String.prototype.replaceAt = function(index, replacement) {
     if (index >= this.length) {
         return this.valueOf();
@@ -46,6 +92,7 @@ class Chessgame {
     constructor() {
         this.state = 'rnqknr/pppppp/111111/111111/PPPPPP/RNQKNR w KQkq'
         this.board = this.state.replace(/ .+$/, '').split("/").reverse()
+        this.pgn = ""
     }
     
     get_moves_from_square(square) {
@@ -91,7 +138,6 @@ class Chessgame {
                             f[i] = f[i] + "11"
                         }
                         f = "8/8/" + f.join("/") + " " + this.turn() + " - - 0 1"
-                        console.log(f)
                         f = f.replace(/11111111/g, '8')
                               .replace(/1111111/g, '7')
                               .replace(/111111/g, '6')
@@ -161,9 +207,6 @@ class Chessgame {
                 }
             }
             return this.filter_illegal(square, res)
-            
-            
-            
         } else {
             var g = Chess(this.legit_fen())
             var moves = g.moves({
@@ -205,6 +248,44 @@ class Chessgame {
     }
     
     game_over() {
+        var f = false
+        for (var x = 0; x < 6; x++) {
+            for (var y = 0; y < 6; y++) {
+                if ((this.board[y][x] == this.board[y][x].toUpperCase() && this.turn() == "w") || (this.board[y][x] != this.board[y][x].toUpperCase() && this.turn() == "b")) {
+                    if (this.get_moves_from_square(coor_to_square(x, y)).length != 0) {
+                        f = true
+                        break
+                    }
+                }
+            }
+            if (f) { break }
+        }
+        return !f
+    }
+    
+    check_for_game_over() {
+        var f = false
+        for (var x = 0; x < 6; x++) {
+            for (var y = 0; y < 6; y++) {
+                if ((this.board[y][x] == this.board[y][x].toUpperCase() && this.turn() == "w") || (this.board[y][x] != this.board[y][x].toUpperCase() && this.turn() == "b")) {
+                    if (this.get_moves_from_square(coor_to_square(x, y)).length != 0) {
+                        f = true
+                        break
+                    }
+                }
+            }
+            if (f) { break }
+        }
+        if (!f) {
+            // no moves
+            if (this.is_check(this.turn())) {
+                // Checkmate
+                return "Checkmate"
+            } else {
+                // Stalemate
+                return "Stalemate"
+            }
+        }
         return false
     }
     
@@ -278,7 +359,6 @@ class Chessgame {
             // clear history after a pawn move
             // move normally
             this.board = replace_at(this.board, tx, ty, pp)
-            
         } else {
             if (tp != "1") {
                 // clear history if a piece is taken
@@ -326,6 +406,9 @@ class Chessgame {
         return g.in_check()
     }
     
+    
+    
+    
     legit_fen() {
         var f = this.board.slice().reverse()
         for (var i = 0; i < f.length; i++) {
@@ -341,8 +424,84 @@ class Chessgame {
               .replace(/11/g, '2')
         return f
     }
+    
+    add_pgn(ps, ts) {
+        if (this.turn() == "w") {
+            this.pgn += " " + this.pgn.split(".").length + "."
+        }
+        var px = COLUMNS.indexOf(ps[0])
+        var py = parseInt(ps[1], 10) - 1
+        var pp = this.board[py][px]
+        
+        var tx = COLUMNS.indexOf(ts[0])
+        var ty = parseInt(ts[1], 10) - 1
+        var tp = this.board[ty][tx]
+        
+        if (pp.toUpperCase() == "K" && tx - px == 2) {
+            this.pgn += " O-O"
+            var g = new Chessgame()
+            g.set_state(this.state)
+            g.move_game(ps, ts)
+            if (g.is_check(g.turn())) {
+                this.pgn += "+"
+            }
+        } else if (pp.toUpperCase() == "K" && px - tx == 2) {
+            this.pgn += " O-O-O"
+            var g = new Chessgame()
+            g.set_state(this.state)
+            g.move_game(ps, ts)
+            if (g.is_check(g.turn())) {
+                this.pgn += "+"
+            }
+        } else if (promoting.length == 1) {
+            this.pgn += " " + ps[0]
+            if (px != tx) {
+                this.pgn += "x" + ts
+            } else {
+                this.pgn += ts[1]
+            }
+            this.pgn += "=" + promoting[0].toUpperCase()
+        } else {
+            var g = new Chess(this.legit_fen())
+            g.move({from: ps, to: ts, promotion: 'q'})
+            var m = g.pgn().split(" ")
+            this.pgn += " " + m[m.length - 1]
+        }
+    }
 }
 
+function promotion(p, px, py, tx, ty) {
+    function promote() {
+        $('div#promotion-buttons-container').remove()
+        $("#promotion-buttons-container").remove()
+        promoting = [p]
+        game.state = game.state.replaceAt(42, game.turn() == "w" ? "b" : "w")
+        game.add_pgn(coor_to_square(px, py), coor_to_square(tx, ty))
+        game.state = game.state.replaceAt(42, game.turn() == "w" ? "b" : "w")
+        game.board = replace_at(game.board, tx, ty, p)
+        game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
+        board.position(game.fen())
+
+        if (game.is_check(game.turn())) {
+            game.pgn += "+"
+        }
+        update_pgn(game.pgn)
+        
+        // alert user if game over
+        var x = game.check_for_game_over()
+        if (x != false) {
+            if (x == "Checkmate") {
+                game.pgn = game.pgn.replaceAt(game.pgn.length - 1, "#")
+                setTimeout(() => { alert((game.turn() == "w" ? "BLACK " : "WHITE ") + "WINS!") }, 150)
+                
+            } else {
+                setTimeout(() => { alert("DRAW (STALEMATE)") }, 100)
+            }
+        }
+        promoting = []
+    }
+    return promote
+}
 
 function removeGreySquares () {
   $('#myBoard .square-55d63').css('background', '')
@@ -361,8 +520,7 @@ function greySquare (square) {
 
 function onDragStart (source, piece) {
   // do not pick up pieces if the game is over
-  if (game.game_over()) return false
-
+  if (game.game_over() || !onCurrentMove) return false
   // or if it's not that side's turn
   if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
       (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
@@ -417,88 +575,68 @@ function onDrop (source, target) {
             np.style.width = size.width + "px"
             
             if (pp == "P") {
-                container.style.top = size.top + "px"
                 qp.classList.add("white-queen-promotion")
                 rp.classList.add("white-rook-promotion")
                 np.classList.add("white-knight-promotion")
-                qp.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "Q")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                rp.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "R")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                np.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "N")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                container.appendChild(qp)
-                container.appendChild(rp)
-                container.appendChild(np)
+                qp.addEventListener("click", promotion("Q", px, py, tx, ty))
+                rp.addEventListener("click", promotion("R", px, py, tx, ty))
+                np.addEventListener("click", promotion("N", px, py, tx, ty))
+                if (board.orientation() == "white") {
+                    container.style.top = size.top + "px"
+                    container.appendChild(qp)
+                    container.appendChild(rp)
+                    container.appendChild(np)
+                } else {
+                    container.style.top = (size.top - size.height * 2) + "px"
+                    container.appendChild(np)
+                    container.appendChild(rp)
+                    container.appendChild(qp)
+                }
+                
             } else {
-                container.style.top = (size.top - size.height * 2) + "px"
-                console.log(target)
                 qp.classList.add("black-queen-promotion")
                 rp.classList.add("black-rook-promotion")
                 np.classList.add("black-knight-promotion")
-                qp.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "q")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                rp.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "r")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                np.addEventListener("click", function () {
-                    $('div#promotion-buttons-container').remove()
-                    $("#promotion-buttons-container").remove()
-                    game.board = replace_at(game.board, tx, ty, "n")
-                    game.state = game.board.slice().reverse().join("/") + " " + game.state.slice(42)
-                    board.position(game.fen())
-                    promoting = []
-                });
-                container.appendChild(np)
-                container.appendChild(rp)
-                container.appendChild(qp)
+                qp.addEventListener("click", promotion("q", px, py, tx, ty))
+                rp.addEventListener("click", promotion("r", px, py, tx, ty))
+                np.addEventListener("click", promotion("n", px, py, tx, ty))
+                if (board.orientation() == "white") {
+                    container.style.top = (size.top - size.height * 2) + "px"
+                    container.appendChild(np)
+                    container.appendChild(rp)
+                    container.appendChild(qp)
+                } else {
+                    container.style.top = size.top + "px"
+                    container.appendChild(qp)
+                    container.appendChild(rp)
+                    container.appendChild(np)
+                }
+                
             }
 
             document.body.appendChild(container)
             
         } else {
             // highlight
-            if (game.turn() === 'w') {
-                $board.find('.' + squareClass).removeClass('highlight-white')
-                $board.find('.' + squareClass).removeClass('highlight-black')
-                $board.find('.square-' + source).addClass('highlight-white')
-                $board.find('.square-' + target).addClass('highlight-white')
+            $board.find('.' + squareClass).removeClass('highlight-white')
+            $board.find('.' + squareClass).removeClass('highlight-black')
+            var $ssquare = $board.find('.square-' + source)
+            if ($ssquare.hasClass('black-3c85d')) {
+                $ssquare.addClass('highlight-black')
             } else {
-                $board.find('.' + squareClass).removeClass('highlight-black')
-                $board.find('.' + squareClass).removeClass('highlight-white')
-                $board.find('.square-' + source).addClass('highlight-black')
-                $board.find('.square-' + target).addClass('highlight-black')
+                $ssquare.addClass('highlight-white')
             }
+            var $tsquare = $board.find('.square-' + target)
+            if ($tsquare.hasClass('black-3c85d')) {
+                $tsquare.addClass('highlight-black')
+            } else {
+                $tsquare.addClass('highlight-white')
+            }
+            // add pgn
+            game.add_pgn(source, target)
             game.move_game(source, target)
+            update_pgn(game.pgn)
+            
         }
     }
 }
@@ -514,7 +652,7 @@ function undo_promotion() {
 
 
 function onMouseoverSquare (square, piece) {
-    if (game.game_over()) return false
+    if (game.game_over() || !onCurrentMove) return false
     if (!piece) return false
     if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
         (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
@@ -541,6 +679,16 @@ function onMouseoutSquare (square, piece) {
 
 function onSnapEnd () {
     board.position(game.fen())
+    // alert user if game over
+    var x = game.check_for_game_over()
+    if (x != false) {
+        if (x == "Checkmate") {
+            game.pgn = game.pgn.replaceAt(game.pgn.length - 1, "#")
+            setTimeout(() => { alert((game.turn() == "w" ? "BLACK " : "WHITE ") + "WINS!") }, 100)
+        } else {
+            alert("DRAW (STALEMATE)")
+        }
+    }
 }
 
 document.body.onclick = function (evt) {
@@ -570,7 +718,7 @@ function detectLeftButton(e) {
 
 var config = {
     draggable: true,
-    position: 'rnqknr/pppppp/111111/111111/PPPPPP/RNQKNR w KQkq',
+    position: '6/6/6/6/6/6 w KQkq',
     onDragStart: onDragStart,
     onDrop: onDrop,
     onMouseoutSquare: onMouseoutSquare,
@@ -578,14 +726,32 @@ var config = {
     onSnapEnd: onSnapEnd,
     orientation: "white"
 }
+
+function init(color) {
+    if (color == "random") {
+        if (Math.random() < 0.5) {
+            color = "white"
+        } else {
+            color = "black"
+        }
+    }
+    board.position('rnqknr/pppppp/6/6/PPPPPP/RNQKNR w KQkq')
+    board.orientation(color)
+    
+    var pv = document.getElementById("pgn-viewer")
+    pv.innerHTML = ""
+    pv.style.textAlign = "left"
+}
+
 var board = null
+
+var promoting = []
 var game = new Chessgame()
+board = Chessboard('myBoard', config)
+
 var whiteSquareGrey = '#a9a9a9'
 var blackSquareGrey = '#696969'
 var $board = $('#myBoard')
 var squareClass = 'square-55d63'
+var onCurrentMove = true
 
-var promoting = []
-
-
-board = Chessboard('myBoard', config)
