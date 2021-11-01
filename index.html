@@ -16,13 +16,34 @@
   <body>
     <div class="sidebar">
       <h2>Los Alamos Alpha Zero</h2>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
+      <p>
+        Los Alamos chess is a chess variant played on a 6×6 board without
+        bishops. This was the first chess-like game played by a computer
+        program. The reduction of the board size and the number of pieces from
+        standard chess was due to the very limited capacity of computers at the
+        time:
+        <a
+          href="https://en.wikipedia.org/wiki/Los_Alamos_chess"
+          target="_blank"
+        >
+          wiki
+        </a>
+      </p>
+      <p>
+        I made the AI to play Los Alamos chess variant instead of standard chess
+        as in the original paper because my computing power is not as good as
+        Google DeepMind's.
+      </p>
+      <p>Packages used: Numpy, PyQt5, Tensorflow, Numba, PyTable</p>
+      <a
+        href="https://github.com/Harrelix/LosAlamosAlphaZero/tree/main/Model%20development"
+        target="_blank"
+      >
+        AI souce code
+      </a>
+      <a href="https://arxiv.org/pdf/1712.01815.pdf" target="_blank">
+        Original Alphazero paper
+      </a>
       <div class="pgn-viewer" id="pgn-viewer">
         <h2>PICK COLOR</h2>
         <button class="color-button" onclick="init('white')">
