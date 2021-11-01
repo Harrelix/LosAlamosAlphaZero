@@ -1,6 +1,6 @@
 # LOS ALAMOS CHESS AI
 ***BASED ON ALPHAZERO PAPER: https://arxiv.org/pdf/1712.01815.pdf*** <br/>
-Los Alamos chess is a chess variant played on a 6×6 board without bishops, This was the first chess-like game played by a computer program. The reduction of the board size and the number of pieces from standard chess was due to the very limited capacity of computers at the time: https://en.wikipedia.org/wiki/Los_Alamos_chess <br/>
+Los Alamos chess is a chess variant played on a 6×6 board without bishops. This was the first chess-like game played by a computer program. The reduction of the board size and the number of pieces from standard chess was due to the very limited capacity of computers at the time: https://en.wikipedia.org/wiki/Los_Alamos_chess <br/>
 I made the AI to play Los Alamos chess variant instead of standard chess as in the original paper because my computing power is not as good as Google DeepMind's. <br/>
 Packages used: Numpy, PyQt5, Tensorflow
 
