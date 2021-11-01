@@ -132,3 +132,28 @@ body {
 .pgn-highlight {
   background-color: #667;
 }
+
+a {
+  display: inline;
+}
+
+a:link {
+  color: slateblue;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:visited {
+  color: slateblue;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:hover {
+  color: darkslateblue;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:active {
+  color: darkslategray;
+  background-color: transparent;
+  text-decoration: underline;
+}
