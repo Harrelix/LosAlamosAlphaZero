@@ -31,6 +31,23 @@ function fillplane(arr, ind, val) {
   }
 }
 
+function weighted_random(items, weights) {
+  // console.log(items);
+  // console.log(weights);
+  var i;
+  for (i = 0; i < weights.length; i++) {
+    weights[i] += weights[i - 1] || 0;
+  }
+  let random = Math.random() * weights[weights.length - 1];
+
+  for (i = 0; i < weights.length; i++) {
+    if (weights[i] > random) {
+      break;
+    }
+  }
+  return items[i];
+}
+
 function fen_to_arr(fen, c, hist) {
   let board = zeros3d(6, 6, 18);
   for (let i = 0; i < 6; i++) {
@@ -350,7 +367,7 @@ class TreeSearch {
       let parent = this.last_node;
 
       while (parent.children.length !== 0) {
-        const n = parent.children.reduce((cp, c) => cp.n + c.n);
+        const n = parent.children.reduce((ps, c) => ps + c.n, 0);
         let puct = [];
         for (let c = 0; c < parent.children.length; c++) {
           puct.push(
@@ -402,7 +419,10 @@ class TreeSearch {
     for (let i = 0; i < this.last_node.children.length; i++) {
       n.push(this.last_node.children[i].n);
     }
-    const best_move = this.last_node.children[argMax(n)];
+    console.log(n);
+    const sum_n = n.reduce((a, b) => a + b, 0);
+    let p = n.map((x) => x / sum_n);
+    const best_move = weighted_random(this.last_node.children, p);
     this.last_node = best_move;
     return best_move.m;
   }
