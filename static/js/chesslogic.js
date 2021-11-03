@@ -820,7 +820,7 @@ function init(color) {
   }
   board.position("rnqknr/pppppp/6/6/PPPPPP/RNQKNR w KQkq");
   board.orientation(color);
-  treeSearch = new TreeSearch(board_to_game(fen_to_arr(game.fen(), 0, [])), 4);
+  treeSearch = new TreeSearch(board_to_game(fen_to_arr(game.fen(), 0, [])), 32);
 
   let $pv = $("#pgn-viewer");
   $pv.html("");
