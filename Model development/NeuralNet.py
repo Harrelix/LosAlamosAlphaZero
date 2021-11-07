@@ -6,12 +6,12 @@ import chess_logic as logic
 import chess_constants as constants
 
 
-# network = input -> conv -> 10 res -> [policy head, value head]
-# conv = 128 filters, 3x3 kernel, stride 1 -> batch normalisation -> ReLU
-# res = conv -> conv w/o ReLU -> skip connection -> ReLU
-# value head = conv filter 1x1 -> batch normalisation -> ReLU -> Dense 128
-# -> ReLU -> Dense 1 ->
-# policy head = conv -> 50
+# Input -> Convolution Block -> 7 Residual Blocks -> (Policy head, Value head)
+# Input: shape = (51, 6, 6), the game state to evaluate
+# Convolution Block: Conv layer (48 filters, 3x3 kernel, stride 1)-> batch normalisation -> GELU
+# Residual Block: Conv block -> conv -> skip connection -> GELU
+# Value head: Conv layer (filter 1x1) -> batch norm -> GELU -> Dense 128 -> GELU -> Dense 1 Tanh;  shape = (1, 1)
+# Policy head: Conv block -> Conv layer (54 filter 1x1); output shape = (54, 6, 6)
 
 def softmax_cross_entropy_with_masking(y_true, y_pred):
     p = y_pred
@@ -45,8 +45,8 @@ def get_output(net, game_state):
 class ResidualCnn:
 
     def __init__(self, hidden_layers, learning_rate=0.01, momentum=0.9, reg_const=0.0001):
-        self.learning_rate = 0.01
-        self.momentum = 0.9
+        self.learning_rate = learning_rate
+        self.momentum = momentum
         self.reg_const = reg_const
 
         self.hidden_layers = hidden_layers
@@ -67,7 +67,7 @@ class ResidualCnn:
 
         x = layers.add([input_block, x])
 
-        x = layers.Activation(lambda x: tf.nn.gelu(x, approximate=True))(x)
+        x = layers.Activation(lambda z: tf.nn.gelu(z, approximate=True))(x)
 
         return x
 
@@ -82,7 +82,7 @@ class ResidualCnn:
 
         x = layers.BatchNormalization(axis=3)(x)
 
-        x = layers.Activation(lambda x: tf.nn.gelu(x, approximate=True))(x)
+        x = layers.Activation(lambda z: tf.nn.gelu(z, approximate=True))(x)
 
         return x
 
@@ -98,7 +98,7 @@ class ResidualCnn:
                           )(x)
 
         x = layers.BatchNormalization(axis=3)(x)
-        x = layers.Activation(lambda x: tf.nn.gelu(x, approximate=True))(x)
+        x = layers.Activation(lambda z: tf.nn.gelu(z, approximate=True))(x)
 
         x = layers.Flatten()(x)
 
@@ -108,7 +108,7 @@ class ResidualCnn:
                          kernel_regularizer=regularizers.l2(self.reg_const)
                          )(x)
 
-        x = layers.Activation(lambda x: tf.nn.gelu(x, approximate=True))(x)
+        x = layers.Activation(lambda z: tf.nn.gelu(z, approximate=True))(x)
 
         x = layers.Dense(1,
                          use_bias=False,
@@ -123,7 +123,8 @@ class ResidualCnn:
 
         x = self.conv_layer(x, 128, (3, 3))
 
-        x = layers.Conv2D(filters=constants.MOVE_SHAPE[-1],
+        x = layers.Conv2D(name="policy_head",
+                          filters=constants.MOVE_SHAPE[-1],
                           kernel_size=(1, 1),
                           data_format="channels_last",
                           padding='same',
@@ -131,8 +132,6 @@ class ResidualCnn:
                           activation='linear',
                           kernel_regularizer=regularizers.l2(self.reg_const)
                           )(x)
-
-        x = layers.BatchNormalization(axis=3, name='policy_head')(x)
 
         return x
 
@@ -151,7 +150,7 @@ class ResidualCnn:
 
         model = keras.Model(inputs=main_input, outputs=[vh, ph])
         model.compile(loss={'value_head': 'mean_squared_error',
-                            'policy_head': softmax_cross_entropy_with_masking},
+                            'policy_head': 'mean_squared_error'},
                       metrics={'value_head': 'binary_accuracy',
                                'policy_head': "categorical_accuracy"},
                       optimizer=optimizers.SGD(learning_rate=self.learning_rate,

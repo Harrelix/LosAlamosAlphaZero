@@ -55,10 +55,10 @@ class TreeSearch:
             while parent["children"]:  # while parent has children
                 # PUCT
                 n = sum([c["n"] for c in parent["children"]])
-                puct = [c["q"] + self.c_puct * c["p"] * (sqrt(n) / (1 + c["n"])) for c in parent["children"]]
+                ucb = [c["q"] + self.c_puct * c["p"] * (sqrt(n) / (1 + c["n"])) for c in parent["children"]]
 
                 # pick node that has best ucb (parent will be the leaf node)
-                parent = parent["children"][np.argmax(puct)]
+                parent = parent["children"][np.argmax(ucb)]
                 path.append(parent)
 
             res = logic.evaluate(parent["Game state"][..., constants.BOARD_STATE_START:])
@@ -133,6 +133,7 @@ class TreeSearch:
     def play_stochastically(self):
         # Play randomly based on # of visits (prefer moves that are visited more)
         n = np.array([c["n"] for c in self.last_node["children"]])
+        print(n)
         sum_n = sum(n)
         p = (n / sum_n) ** (1 / self.exploration)
         best_move = choices(self.last_node["children"], weights=p, k=1)[0]
