@@ -18,10 +18,10 @@ A move is represented by a stack of 54 10x9 planes (20 orthogonal moves, 20 diag
 ## Network configuration 
 Input -> Convolution Block -> 7 Residual Blocks -> (Policy head, Value head)<br/>
 Input: shape = (51, 6, 6), the game state to evaluate<br/>
-Convolution Block: Conv layer (48 filters, 3x3 kernel, stride 1)-> batch normalisation -> swish<br/>
-Residual Block: Conv block -> conv w/o swish -> skip connection -> swish<br/>
-Value head: Conv layer (filter 1x1) -> batch normalisation -> ReLU -> Dense 128 -> swish -> Dense 1; output shape = (1, 1)<br/>
-Policy head: Conv block -> Conv layer (50 filter 1x1) -> batch normalisation; output shape = (54, 6, 6)<br/>
+Convolution Block: Conv layer (48 filters, 3x3 kernel, stride 1)-> batch normalisation -> GELU<br/>
+Residual Block: Conv block -> conv -> skip connection -> GELU<br/>
+Value head: Conv layer (filter 1x1) -> batch normalisation -> GELU -> Dense 128 -> GELU -> Dense 1 Tanh; output shape = (1, 1)<br/>
+Policy head: Conv block -> Conv layer (54 filter 1x1); output shape = (54, 6, 6)<br/>
 ## Tree search method (Monte Carlo Tree Search)
 Each node will hold these information:
 - Game State
